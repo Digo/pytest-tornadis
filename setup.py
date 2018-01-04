@@ -11,7 +11,7 @@ __version__ = version_line.split('__version__ = ')[-1][1:][:-2]
 setuptools.setup(
     name="pytest-tornadis",
     version=__version__,
-    url="https://github.com/Woobo/woobo-backend/pytest_tornadis/",
+    url="https://github.com/cngo-github/pytest-tornadis",
 
     author="Chuong Ngo",
     author_email="chuong@woobo.io",
