@@ -1,0 +1,5 @@
+-r requirements.txt
+
+pytest>=3.3.1
+pytest-cov==2.5.1
+pytest-tornado>=0.4.5
