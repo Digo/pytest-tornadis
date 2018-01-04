@@ -9,7 +9,7 @@ version_line = [line for line in open(module_path)
 __version__ = version_line.split('__version__ = ')[-1][1:][:-2]
 
 setuptools.setup(
-    name="pytest_tornadis",
+    name="pytest-tornadis",
     version=__version__,
     url="https://github.com/Woobo/woobo-backend/pytest_tornadis/",
 
@@ -23,8 +23,8 @@ setuptools.setup(
     zip_safe=False,
     platforms='any',
 
-    install_requires=['mongoengine==0.14.3', 'pymongo==3.5.1', 'six==1.11.0',
-                      'validation_utils==1.0.1', 'passlib==1.7.1', 'python-dateutil==2.6.1'],
+    install_requires=['tornadis>=0.8.0', 'tornado>=4.5.2'],
+    tests_require=['pytest>=3.3.1', 'pytest-cov==2.5.1', 'pytest-tornado>=0.4.5'],
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -32,7 +32,6 @@ setuptools.setup(
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
