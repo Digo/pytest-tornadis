@@ -42,6 +42,13 @@ class MockPubSubClient(tornadis.PubSubClient, MockClient):
         raise tornado.gen.Return(len(args))
 
     @tornado.gen.coroutine
+    def pubsub_unsubscribe(self, *args):
+        for channel in args:
+            self.channels[channel].remove(self)
+
+        raise tornado.gen.Return(len(args))
+
+    @tornado.gen.coroutine
     def pubsub_pop_message(self, *args, **kwargs):
         reply = None
 
