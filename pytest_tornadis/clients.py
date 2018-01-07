@@ -20,7 +20,7 @@ class MockClient(tornadis.Client):
 
     @tornado.gen.coroutine
     def call(self, *args, **kwargs):
-        command = RedisCommands[args[0].lower()]
+        command = RedisCommands(args[0].lower())
 
         if command == RedisCommands.PUBLISH:
             channel = self.channels[args[1]]
@@ -52,6 +52,8 @@ class MockClient(tornadis.Client):
             data = args[3]
 
             self.data[key] = (RedisCommands.SETEX, data)
+        else:
+            raise ValueError('Unknown command.')
 
     def is_connected(self):
         return True
