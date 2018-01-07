@@ -1,4 +1,6 @@
 import collections
+import datetime
+import enum
 
 import tornadis
 import tornado
@@ -6,15 +8,21 @@ import tornado
 _channels = collections.defaultdict(list)
 _data = {}
 
+class RedisCommands(enum.Enum):
+    PUBLISH = 'publish'
+    GET = 'get'
+    SET = 'set'
+    SETEX = 'setex'
+
 class MockClient(tornadis.Client):
     channels = _channels
     data = _data
 
     @tornado.gen.coroutine
     def call(self, *args, **kwargs):
-        command = args[0].lower()
+        command = RedisCommands[args[0].lower()]
 
-        if command == 'publish':
+        if command == RedisCommands.PUBLISH:
             channel = self.channels[args[1]]
             message = args[2]
 
@@ -22,6 +30,28 @@ class MockClient(tornadis.Client):
                 client._reply_list.append(message)
 
             raise tornado.gen.Return(len(channel))
+        elif command == RedisCommands.GET:
+            key = args[1]
+            if key not in self.data:
+                raise tornado.gen.Return(None)
+
+            val = self.data[key]
+            if val[0] == RedisCommands.SETEX and datetime.datetime.utcnow() < val[2]:
+                del self.data[key]
+                raise tornado.gen.Return(None)
+
+            return val[1]
+        elif command == RedisCommands.SETEX:
+            key = args[1]
+            ttl = datetime.datetime.utcnow() + datetime.timedelta(seconds=args[2])
+            data = args[3]
+
+            self.data[key] = (RedisCommands.SETEX, data, ttl)
+        elif command == RedisCommands.SET:
+            key = args[1]
+            data = args[3]
+
+            self.data[key] = (RedisCommands.SETEX, data)
 
     def is_connected(self):
         return True
