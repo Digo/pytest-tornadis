@@ -2,6 +2,8 @@
     Tests for MockPubSub object.
 """
 
+import time
+
 import pytest
 import pytest_tornado
 
@@ -42,6 +44,25 @@ async def test_mockclient_hmset(mock_client):
 async def test_mockclient_no_command(mock_client):
     with pytest.raises(ValueError):
         await mock_client.call('NOTACOMMAND')
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_get(mock_client):
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('GET', 'test')
+    assert result is None
+
+    # Expired
+    await mock_client.call('SETEX', 'test', 1, 'foo')
+    assert 'test' in mock_client.data
+    time.sleep(5)
+    result = await mock_client.call('GET', 'test')
+    assert result is None
+
+    # Success
+    mock_client.data['test'] = (clients.RedisCommands.SET, 'foo')
+    result = await mock_client.call('GET', 'test')
+    assert result == 'foo'
 
 @pytest.mark.gen_test
 @pytest.mark.usefixtures('mock_client')
