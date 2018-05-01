@@ -84,4 +84,4 @@ async def test_mockclient_hgetall(mock_client):
     # Success
     mock_client.data['test'] = (clients.RedisCommands.HMSET, {'foo': 'bar'})
     result = await mock_client.call('HGETALL', 'test')
-    assert result is {'foo': 'bar'}
+    assert result == {'foo': 'bar'}
