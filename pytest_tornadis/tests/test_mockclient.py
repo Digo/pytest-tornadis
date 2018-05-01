@@ -35,10 +35,34 @@ async def test_mockclient_hmset(mock_client):
 
     assert 'test' not in mock_client.data
     await mock_client.call('HMSET', 'test', 'foo', 'bar')
-    assert mock_client.data['test'] == {'foo': 'bar'}
+    assert mock_client.data['test'] == (clients.RedisCommands.HMSET, {'foo': 'bar'})
 
 @pytest.mark.gen_test
 @pytest.mark.usefixtures('mock_client')
 async def test_mockclient_no_command(mock_client):
     with pytest.raises(ValueError):
         await mock_client.call('NOTACOMMAND')
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_hget(mock_client):
+    with pytest.raises(ValueError):
+        await mock_client.call('HGET', 'TEST')   # Too short
+
+    with pytest.raises(ValueError):
+        await mock_client.call('HGET', 'TEST', 'foo', 'bar')   # Too long
+
+    # No key
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('HGET', 'test', 'foo')
+    assert result is None
+
+    # No field
+    mock_client.data['test'] = (clients.RedisCommands.HMSET, {'notfoo': 'bar'})
+    result = await mock_client.call('HGET', 'test', 'foo')
+    assert result is None
+
+    # Success
+    mock_client.data['test'] = (clients.RedisCommands.HMSET, {'foo': 'bar'})
+    result = await mock_client.call('HGET', 'test', 'foo')
+    assert result is 'bar'
