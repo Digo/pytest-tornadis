@@ -121,9 +121,6 @@ class MockClient(tornadis.Client):
             yield self.call(RedisCommands.SETEX.value, key, ttl, result)
             return 1
         elif command == RedisCommands.PERSIST:
-            if len(args) != 3:
-                raise ValueError('Invalid parameters.')
-
             key = args[1]
             result = yield self.call(RedisCommands.GET.value, key)
             if result is None:
