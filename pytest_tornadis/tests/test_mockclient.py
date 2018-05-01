@@ -36,3 +36,9 @@ async def test_mockclient_hmset(mock_client):
     assert 'test' not in mock_client.data
     await mock_client.call('HMSET', 'test', 'foo', 'bar')
     assert mock_client.data['test'] == {'foo': 'bar'}
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_no_command(mock_client):
+    with pytest.raises(ValueError):
+        await mock_client.call('NOTACOMMAND')

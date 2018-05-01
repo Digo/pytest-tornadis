@@ -65,8 +65,6 @@ class MockClient(tornadis.Client):
 
             key = args[1]
             self.data[key] = new_dict
-        else:
-            raise ValueError('Unknown command.')
 
     def is_connected(self):
         return True
