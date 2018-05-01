@@ -85,3 +85,25 @@ async def test_mockclient_hgetall(mock_client):
     mock_client.data['test'] = (clients.RedisCommands.HMSET, {'foo': 'bar'})
     result = await mock_client.call('HGETALL', 'test')
     assert result == {'foo': 'bar'}
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_hset(mock_client):
+    with pytest.raises(ValueError):
+        await mock_client.call('HSET', 'test', 'foo')   # Too short
+
+    with pytest.raises(ValueError):
+        await mock_client.call('HSET', 'TEST', 'foo', 'bar', 'foobar')   # Too long
+
+    # No key
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('HSET', 'test', 'foo', 'bar')
+    assert result is 0
+
+    # Success
+    mock_client.data['test'] = (clients.RedisCommands.HMSET, {})
+    result = await mock_client.call('HSET', 'test', 'foo', 'bar')
+    assert result == 1
+
+    result = await mock_client.call('HGETALL', 'test')
+    assert result == {'foo': 'bar'}
