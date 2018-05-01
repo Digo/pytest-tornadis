@@ -135,3 +135,25 @@ async def test_mockclient_hset(mock_client):
 
     result = await mock_client.call('HGETALL', 'test')
     assert result == {'foo': 'bar'}
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_expire(mock_client):
+    with pytest.raises(ValueError):
+        await mock_client.call('EXPIRE', 'test')   # Too short
+
+    with pytest.raises(ValueError):
+        await mock_client.call('EXPIRE', 'TEST', 'foo', 'bar')   # Too long
+
+    # No key
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('EXPIRE', 'test', 1)
+    assert result is 0
+
+    # Success
+    mock_client.data['test'] = (clients.RedisCommands.SET, 'foo')
+    result = await mock_client.call('EXPIRE', 'test', 1)
+    assert result == 1
+    time.sleep(5)
+    result = await mock_client.call('GET', 'test')
+    assert result is None
