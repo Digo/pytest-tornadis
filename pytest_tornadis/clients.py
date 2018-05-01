@@ -10,6 +10,7 @@ _data = {}
 
 class RedisCommands(enum.Enum):
     PUBLISH = 'publish'
+    DEL = 'del'
     GET = 'get'
     SET = 'set'
     SETEX = 'setex'
@@ -35,6 +36,10 @@ class MockClient(tornadis.Client):
                 client._reply_list.append(message)
 
             raise tornado.gen.Return(len(channel))
+        elif command == RedisCommands.DEL:
+            for key in args[1:]:
+                if key in self.data:
+                    del self.data[key]
         elif command == RedisCommands.GET:
             key = args[1]
             if key not in self.data:
