@@ -76,6 +76,8 @@ class MockClient(tornadis.Client):
                 return redis_dict
 
             field = args[2]
+            if field not in redis_dict:
+                raise tornado.gen.Return(None)
             return redis_dict[field]
 
     def is_connected(self):
