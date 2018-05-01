@@ -157,3 +157,10 @@ async def test_mockclient_expire(mock_client):
     time.sleep(5)
     result = await mock_client.call('GET', 'test')
     assert result is None
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_del(mock_client):
+    mock_client.data['test'] = (clients.RedisCommands.SET, 'foo')
+    await mock_client.call('DEL', 'test')
+    assert 'test' not in mock_client.data
