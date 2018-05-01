@@ -14,6 +14,7 @@ class RedisCommands(enum.Enum):
     SET = 'set'
     SETEX = 'setex'
     HMSET = 'hmset'
+    HGET = 'hget'
 
 class MockClient(tornadis.Client):
     channels = _channels
@@ -52,7 +53,7 @@ class MockClient(tornadis.Client):
             key = args[1]
             data = args[3]
 
-            self.data[key] = (RedisCommands.SETEX, data)
+            self.data[key] = (RedisCommands.SET, data)
         elif command == RedisCommands.HMSET:
             arg_len = len(args) - 2
             if arg_len % 2 or arg_len < 1:
@@ -64,7 +65,14 @@ class MockClient(tornadis.Client):
                 new_dict[key] = val
 
             key = args[1]
-            self.data[key] = new_dict
+            self.data[key] = (RedisCommands.HMSET, new_dict)
+        elif command == RedisCommands.HGET:
+            if len(args) != 3:
+                raise ValueError('Invalid parameters.')
+
+            key = args[1]
+            field = args[2]
+            return self.data[key][1][field]
 
     def is_connected(self):
         return True
