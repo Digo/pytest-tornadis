@@ -16,6 +16,7 @@ class RedisCommands(enum.Enum):
     HMSET = 'hmset'
     HGET = 'hget'
     HGETALL = 'hgetall'
+    HSET = 'hset'
 
 class MockClient(tornadis.Client):
     channels = _channels
@@ -87,6 +88,19 @@ class MockClient(tornadis.Client):
             key = args[1]
             redis_dict = yield self.call(RedisCommands.GET.value, key)
             return redis_dict
+        elif command == RedisCommands.HSET:
+            if len(args) != 4:
+                raise ValueError('Invalid parameters.')
+
+            key = args[1]
+            result = yield self.get(key)
+            if not isinstance(result, dict):
+                return 0
+
+            field = args[2]
+            value = args[3]
+            self.data[key][1][field] = value
+            return 1
 
     def is_connected(self):
         return True
