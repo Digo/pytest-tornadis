@@ -19,6 +19,7 @@ class RedisCommands(enum.Enum):
     HGETALL = 'hgetall'
     HSET = 'hset'
     EXPIRE = 'expire'
+    PERSIST = 'persist'
 
 class MockClient(tornadis.Client):
     channels = _channels
@@ -118,6 +119,17 @@ class MockClient(tornadis.Client):
 
             ttl = args[2]
             yield self.call(RedisCommands.SETEX.value, key, ttl, result)
+            return 1
+        elif command == RedisCommands.PERSIST:
+            if len(args) != 3:
+                raise ValueError('Invalid parameters.')
+
+            key = args[1]
+            result = yield self.call(RedisCommands.GET.value, key)
+            if result is None:
+                return 0
+
+            yield self.call(RedisCommands.SET.value, key, result)
             return 1
 
     def is_connected(self):
