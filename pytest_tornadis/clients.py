@@ -83,6 +83,7 @@ class MockClient(tornadis.Client):
 
     def clear_mock_redis(self):
         self.channels.clear()
+        self.data.clear()
 
 class MockPubSubClient(tornadis.PubSubClient, MockClient):
     def __init__(self, *args, **kwargs):
