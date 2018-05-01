@@ -41,7 +41,7 @@ class MockClient(tornadis.Client):
                 raise tornado.gen.Return(None)
 
             val = self.data[key]
-            if val[0] == RedisCommands.SETEX and datetime.datetime.utcnow() < val[2]:
+            if val[0] == RedisCommands.SETEX and datetime.datetime.utcnow() > val[2]:
                 del self.data[key]
                 raise tornado.gen.Return(None)
 
