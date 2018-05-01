@@ -69,7 +69,7 @@ async def test_mockclient_get(mock_client):
 async def test_mockclient_set(mock_client):
     assert 'test' not in mock_client.data
     result = await mock_client.call('SET', 'test', 'foo')
-    assert mock_client.data['test'] == 'foo'
+    assert mock_client.data['test'] == (clients.RedisCommands.SET, 'foo')
 
 @pytest.mark.gen_test
 @pytest.mark.usefixtures('mock_client')
