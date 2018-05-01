@@ -13,6 +13,7 @@ class RedisCommands(enum.Enum):
     GET = 'get'
     SET = 'set'
     SETEX = 'setex'
+    HMSET = 'hmset'
 
 class MockClient(tornadis.Client):
     channels = _channels
@@ -52,6 +53,18 @@ class MockClient(tornadis.Client):
             data = args[3]
 
             self.data[key] = (RedisCommands.SETEX, data)
+        elif command == RedisCommands.HMSET:
+            arg_len = len(args) - 2
+            if arg_len % 2 or arg_len < 1:
+                raise ValueError('Invalid parameters.')
+
+            dict_args = zip(*[iter(args[2:])]*2)
+            new_dict = {}
+            for key, val in dict_args:
+                new_dict[key] = val
+
+            key = args[1]
+            self.data[key] = new_dict
         else:
             raise ValueError('Unknown command.')
 

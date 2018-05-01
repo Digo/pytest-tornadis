@@ -23,3 +23,16 @@ async def test_valid_mockclient_call_publish(pubsub_client, mock_client):
     mock_client.call('PUBLISH', 'test', 'message')
     val = await pubsub_client.pubsub_pop_message()
     assert val == 'message'
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_hmset(mock_client):
+    with pytest.raises(ValueError):
+        await mock_client.call('HMSET', 'test')     # Not enough arguments.
+
+    with pytest.raises(ValueError):
+        await mock_client.call('HMSET', 'test', 'foo')     # Not enough arguments.
+
+    assert 'test' not in mock_client.data
+    await mock_client.call('HMSET', 'test', 'foo', 'bar')
+    assert mock_client.data['test'] == {'foo': 'bar'}
