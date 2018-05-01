@@ -164,3 +164,18 @@ async def test_mockclient_del(mock_client):
     mock_client.data['test'] = (clients.RedisCommands.SET, 'foo')
     await mock_client.call('DEL', 'test')
     assert 'test' not in mock_client.data
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_persist(mock_client):
+    # No key
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('PERSIST', 'test', 1)
+    assert result is 0
+
+    # Success
+    await mock_client.call('SETEX', 'test', 5, 'foo')
+    result = await mock_client.call('PERSIST', 'test')
+    assert result == 1
+    time.sleep(7)
+    assert 'test' in mock_client.data
