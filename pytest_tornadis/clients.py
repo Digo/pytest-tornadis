@@ -71,8 +71,12 @@ class MockClient(tornadis.Client):
                 raise ValueError('Invalid parameters.')
 
             key = args[1]
+            redis_dict = yield self.call(RedisCommands.GET.value, key)
+            if redis_dict is None:
+                return redis_dict
+
             field = args[2]
-            return self.data[key][1][field]
+            return redis_dict[field]
 
     def is_connected(self):
         return True
