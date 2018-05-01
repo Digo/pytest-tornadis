@@ -54,7 +54,7 @@ class MockClient(tornadis.Client):
             self.data[key] = (RedisCommands.SETEX, data, ttl)
         elif command == RedisCommands.SET:
             key = args[1]
-            data = args[3]
+            data = args[2]
 
             self.data[key] = (RedisCommands.SET, data)
         elif command == RedisCommands.HMSET:
@@ -112,7 +112,7 @@ class MockClient(tornadis.Client):
                 return 0
 
             ttl = args[2]
-            yield self.call(RedisCommands.SETEX.value, key, ttl)
+            yield self.call(RedisCommands.SETEX.value, key, ttl, result)
             return 1
 
     def is_connected(self):
