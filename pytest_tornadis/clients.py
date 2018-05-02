@@ -22,6 +22,8 @@ class RedisCommands(enum.Enum):
     PERSIST = 'persist'
     RPUSH = 'rpush'
     LRANGE = 'lrange'
+    SADD = 'sadd'
+    SMEMBERS = 'smembers'
 
 class MockClient(tornadis.Client):
     channels = _channels
@@ -162,6 +164,26 @@ class MockClient(tornadis.Client):
             if stop_idx == -1:
                 stop_idx = len(result)
             return result[start_idx: stop_idx + 1]
+        elif command == RedisCommands.SADD:
+            key = args[1]
+            result = yield self.call(RedisCommands.GET.value, key)
+            if not isinstance(result, set):
+                result = set()
+
+            add_count = 0
+            for elem in args[2:]:
+                if elem not in result:
+                    add_count += 1
+                result.add(elem)
+            yield self.call(RedisCommands.SET.value, key, result)
+            return add_count
+        elif command == RedisCommands.SMEMBERS:
+            key = args[1]
+            result = yield self.call(RedisCommands.GET.value, key)
+            if not isinstance(result, set):
+                return []
+
+            return list(result)
 
     def is_connected(self):
         return True
