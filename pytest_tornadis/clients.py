@@ -152,11 +152,8 @@ class MockClient(tornadis.Client):
                 raise ValueError('Invalid arguments')
 
             key = args[1]
-            start_idx = args[2]
-            stop_idx = -1 if len(args) < 4 else args[3]
-            if not isinstance(start_idx, int) or not isinstance(stop_idx, int):
-                raise ValueError('Invalid arguments.')
-
+            start_idx = int(args[2])
+            stop_idx = -1 if len(args) < 4 else int(args[3])
             result = yield self.call(RedisCommands.GET.value, key)
 
             if result is None or start_idx > len(result):
