@@ -109,7 +109,7 @@ class MockClient(tornadis.Client):
             result = yield self.call(RedisCommands.GET.value, key)
 
             yield self.call(RedisCommands.HMSET.value, key, field, value)
-            return 0 if not isinstance(result, dict) or field not in result else 1
+            return 1 if not isinstance(result, dict) or field not in result else 0
         elif command == RedisCommands.EXPIRE:
             if len(args) != 3:
                 raise ValueError('Invalid parameters.')
