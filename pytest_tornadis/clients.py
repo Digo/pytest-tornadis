@@ -75,9 +75,9 @@ class MockClient(tornadis.Client):
 
             dict_args = zip(*[iter(args[2:])]*2)
             for dkey, dval in dict_args:
-                new_dict[dkey] = dval
+                data_dict[dkey] = dval
 
-            self.data[key] = (RedisCommands.HMSET, new_dict)
+            self.data[key] = (RedisCommands.HMSET, data_dict)
             return 'OK'.encode('utf-8')
         elif command == RedisCommands.HGET:
             if len(args) != 3:
