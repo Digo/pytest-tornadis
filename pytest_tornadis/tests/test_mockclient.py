@@ -180,3 +180,22 @@ async def test_mockclient_persist(mock_client):
     assert result == 1
     time.sleep(7)
     assert 'test' in mock_client.data
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_RPUSH(mock_client):
+    # No values
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('RPUSH', 'test')
+    assert result == 0
+
+    # New List
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('RPUSH', 'test', 'foo')
+    assert result == 1
+    assert mock_client.data['test'] == (clients.RedisCommands.SET, ['foo'])
+
+    # Append List
+    result = await mock_client.call('RPUSH', 'test', 'bar', 'foobar')
+    assert result == 3
+    assert mock_client.data['test'] == (clients.RedisCommands.SET, ['foo', 'bar', 'foobar'])
