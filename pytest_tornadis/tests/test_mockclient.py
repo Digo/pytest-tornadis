@@ -127,12 +127,12 @@ async def test_mockclient_hset(mock_client):
     # No key
     assert 'test' not in mock_client.data
     result = await mock_client.call('HSET', 'test', 'foo', 'bar')
-    assert result is 0
+    assert result == 1
 
     # Success
     mock_client.data['test'] = (clients.RedisCommands.HMSET, {})
     result = await mock_client.call('HSET', 'test', 'foo', 'bar')
-    assert result == 1
+    assert result == 0
 
     result = await mock_client.call('HGETALL', 'test')
     assert result == {'foo': 'bar'}
