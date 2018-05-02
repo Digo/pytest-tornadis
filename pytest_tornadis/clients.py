@@ -20,6 +20,7 @@ class RedisCommands(enum.Enum):
     HSET = 'hset'
     EXPIRE = 'expire'
     PERSIST = 'persist'
+    RPUSH = 'rpush'
 
 class MockClient(tornadis.Client):
     channels = _channels
@@ -134,6 +135,17 @@ class MockClient(tornadis.Client):
 
             yield self.call(RedisCommands.SET.value, key, result)
             return 1
+        elif command == RedisCommands.RPUSH:
+            key = args[1]
+            result = yield self.call(RedisCommands.GET.value, key)
+            if not isinstance(result, list):
+                result = []
+
+            if len(args) < 3:
+                return len(result)
+            result.extend(args[2:])
+            yield self.call(RedisCommands.SET.value, key, result)
+            return len(result)
 
     def is_connected(self):
         return True
