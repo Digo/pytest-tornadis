@@ -159,7 +159,7 @@ class MockClient(tornadis.Client):
             if result is None or start_idx > len(result):
                 return []
 
-            if stop_idx == len(result) or stop_idx == -1:
+            if stop_idx == -1:
                 stop_idx = len(result)
             return result[start_idx: stop_idx + 1]
 
