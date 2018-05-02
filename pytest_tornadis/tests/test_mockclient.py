@@ -36,7 +36,8 @@ async def test_mockclient_hmset(mock_client):
         await mock_client.call('HMSET', 'test', 'foo')     # Not enough arguments.
 
     assert 'test' not in mock_client.data
-    await mock_client.call('HMSET', 'test', 'foo', 'bar')
+    result = await mock_client.call('HMSET', 'test', 'foo', 'bar')
+    assert result == 'OK'.encode('utf-8')
     assert mock_client.data['test'] == (clients.RedisCommands.HMSET, {'foo': 'bar'})
 
 @pytest.mark.gen_test
