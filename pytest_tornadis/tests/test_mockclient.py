@@ -225,3 +225,25 @@ async def test_mockclient_lrange(mock_client):
 
     result = await mock_client.call('LRANGE', 'test', 0, 1)
     assert result == ['foo', 'bar']
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_sadd(mock_client):
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('SADD', 'test', 0)
+    assert mock_client.data['test'] == (clients.RedisCommands.SET, set([0]))
+
+    result = await mock_client.call('SADD', 'test', 0, 1, 3)
+    assert mock_client.data['test'] == (clients.RedisCommands.SET, set([0, 1, 3]))
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_smembers(mock_client):
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('SMEMBERS', 'test')
+    assert result == []
+
+    result = await mock_client.call('SADD', 'test', 0 , 1, 3)
+    assert 'test' in mock_client.data
+    result = await mock_client.call('SMEMBERS', 'test')
+    assert isinstance(result, list) and set(result) == set([0, 1, 3])
