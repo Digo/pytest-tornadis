@@ -75,6 +75,7 @@ class MockClient(tornadis.Client):
 
             key = args[1]
             self.data[key] = (RedisCommands.HMSET, new_dict)
+            return 'OK'.encode('utf-8')
         elif command == RedisCommands.HGET:
             if len(args) != 3:
                 raise ValueError('Invalid parameters.')
