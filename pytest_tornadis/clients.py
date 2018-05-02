@@ -21,6 +21,7 @@ class RedisCommands(enum.Enum):
     EXPIRE = 'expire'
     PERSIST = 'persist'
     RPUSH = 'rpush'
+    LRANGE = 'lrange'
 
 class MockClient(tornadis.Client):
     channels = _channels
@@ -146,6 +147,24 @@ class MockClient(tornadis.Client):
             result.extend(args[2:])
             yield self.call(RedisCommands.SET.value, key, result)
             return len(result)
+        elif command == RedisCommands.LRANGE:
+            if len(args) < 3:
+                raise ValueError('Invalid arguments')
+
+            key = args[1]
+            start_idx = args[2]
+            stop_idx = -1 if len(args) < 4 else args[3]
+            if not isinstance(start_idx, int) or not isinstance(stop_idx, int):
+                raise ValueError('Invalid arguments.')
+
+            result = yield self.call(RedisCommands.GET.value, key)
+
+            if result is None or start_idx > len(result):
+                return []
+
+            if stop_idx == len(result):
+                stop_idx = -1
+            return result[start_idx: stop_idx]
 
     def is_connected(self):
         return True
