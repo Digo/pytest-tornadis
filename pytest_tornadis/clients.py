@@ -161,7 +161,7 @@ class MockClient(tornadis.Client):
 
             if stop_idx == len(result) or stop_idx == -1:
                 stop_idx = len(result)
-            return result[start_idx: stop_idx]
+            return result[start_idx: stop_idx + 1]
 
     def is_connected(self):
         return True
