@@ -38,11 +38,11 @@ class MockClient(tornadis.Client):
 
             raise tornado.gen.Return(len(channel))
         elif command == RedisCommands.DEL:
-            successful = False
+            successful = 0
             for key in args[1:]:
                 if key in self.data:
                     del self.data[key]
-                    successful = True
+                    successful += 1
 
             return successful
         elif command == RedisCommands.GET:
