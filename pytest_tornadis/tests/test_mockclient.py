@@ -199,3 +199,29 @@ async def test_mockclient_RPUSH(mock_client):
     result = await mock_client.call('RPUSH', 'test', 'bar', 'foobar')
     assert result == 3
     assert mock_client.data['test'] == (clients.RedisCommands.SET, ['foo', 'bar', 'foobar'])
+
+@pytest.mark.gen_test
+@pytest.mark.usefixtures('mock_client')
+async def test_mockclient_lrange(mock_client):
+    # Invalid values
+    with pytest.raises(ValueError):
+        await mock_client.call('LRANGE', 'test')
+
+    # Success
+    assert 'test' not in mock_client.data
+    result = await mock_client.call('LRANGE', 'test', 0)
+    assert result == []
+
+    mock_client.data['test'] = (clients.RedisCommands.SET, ['foo', 'bar', 'foobar'])
+    assert 'test' in mock_client.data
+    result = await mock_client.call('LRANGE', 'test', 4)
+    assert result == []
+
+    result = await mock_client.call('LRANGE', 'test', 0)
+    assert result == ['foo', 'bar', 'foobar']
+
+    result = await mock_client.call('LRANGE', 'test', 0, 5)
+    assert result == ['foo', 'bar', 'foobar']
+
+    result = await mock_client.call('LRANGE', 'test', 0, 1)
+    assert result == ['foo', 'bar']
